@@ -1,21 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import Navigation from "./components/navigation";
+import * as SecureStore from "expo-secure-store";
 
 export default function App() {
+  const [initialRoute, setRoute] = useState("Welcome");
+  useEffect(() => {
+    async function fetchToken() {
+      const token = await SecureStore.getItemAsync("token");
+      token !== null ? setRoute("Home") : setRoute("Welcome");
+      console.log(JSON.parse(token));
+    }
+    fetchToken();
+  }, []);
+  const DismissKeyboard = ({ children }) => (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      {children}
+    </TouchableWithoutFeedback>
+  );
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <DismissKeyboard>
+      <Navigation initialRoute={initialRoute} />
+    </DismissKeyboard>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
