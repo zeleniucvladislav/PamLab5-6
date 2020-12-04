@@ -12,12 +12,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Navbar from "../../navbar";
-import { AntDesign } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
-import MapView from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import RatingStars from "./ratingStars";
+import * as Location from "expo-location";
 
 export default function DoctorDetail({
   route,
@@ -26,6 +26,12 @@ export default function DoctorDetail({
 }) {
   const [doctor, setDoctor] = useState({});
   const [loading, setLoading] = useState(true);
+  const [locationCoords, setLocationCoords] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  });
   const { id } = route.params;
 
   useEffect(() => {
@@ -40,15 +46,31 @@ export default function DoctorDetail({
       })
       .then((response) => {
         setDoctor(response.data);
+        getLocation(response.data.Address);
         setLoading(false);
       })
       .catch((error) => {
-        console.log("error", error);
         if (error.response) {
           console.log(error.response.data);
         }
         console.log(error);
       });
+  };
+  const getLocation = async (address) => {
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+    }
+    try {
+      let location = await Location.geocodeAsync(JSON.stringify(address));
+      setLocationCoords({
+        ...locationCoords,
+        latitude: location[0].latitude,
+        longitude: location[0].longitude,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -77,7 +99,6 @@ export default function DoctorDetail({
               <View style={styles.listInfo}>
                 <Text style={styles.name}>{doctor.FullName}</Text>
                 <Text style={styles.speciality}>{doctor.Specs}</Text>
-
                 <RatingStars stars={doctor.Stars} />
               </View>
             </View>
@@ -96,15 +117,15 @@ export default function DoctorDetail({
                 <Text style={styles.locationText}>{doctor.Address}</Text>
               </View>
             </View>
-            <MapView
-              style={styles.mapStyle}
-              initialRegion={{
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-            />
+            <MapView style={styles.mapStyle} region={locationCoords}>
+              <Marker
+                pinColor="#08DA5F"
+                coordinate={{
+                  latitude: locationCoords.latitude,
+                  longitude: locationCoords.longitude,
+                }}
+              />
+            </MapView>
             <TouchableOpacity
               style={styles.btn}
               onPress={() => navigation.navigate("Notification")}
