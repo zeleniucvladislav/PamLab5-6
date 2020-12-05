@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, PixelRatio } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function RatingStars(props) {
@@ -40,8 +39,6 @@ export default function RatingStars(props) {
         } else if (item > defaultRating && item - defaultRating < 1) {
           return <View key={item}>{starImageHalf}</View>;
         } else return <View key={item}>{starImageEmpty}</View>;
-
-        //return item <= defaultRating ? starImageFilled : starImageEmpty;
       })}
       <Text style={styles.rating}>{props.stars}</Text>
     </View>

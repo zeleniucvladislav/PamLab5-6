@@ -10,12 +10,23 @@ import {
   PixelRatio,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
 import Navbar from "../navbar";
+import NotificationField from "./notificationField";
+import RatingStars from "../helpers/ratingStars";
+import * as SecureStore from "expo-secure-store";
 
 const checkmark = require("../../static/images/checkmark.png");
 
-export default function Notification({ navigation, navigation: { goBack } }) {
+export default function Notification({
+  route,
+  navigation,
+  navigation: { goBack },
+}) {
+  const { notificationData, doctorData } = route.params;
+  const onPress = async () => {
+    SecureStore.deleteItemAsync("formFields");
+    navigation.navigate("Home");
+  };
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#08DA5F" />
@@ -37,77 +48,49 @@ export default function Notification({ navigation, navigation: { goBack } }) {
         <View style={styles.content}>
           <View style={styles.requestDetails}>
             <Text style={styles.detailsTitle}>Request Details</Text>
-            <Text style={styles.detailsLabel}>Name</Text>
-            <Text style={styles.detailsData}>Jojon Suehndra</Text>
-            <Text style={styles.detailsLabel}>Desease</Text>
-            <Text style={styles.detailsData}>Sore Eyes</Text>
-            <Text style={styles.detailsLabel}>Location</Text>
-            <Text style={styles.detailsData}>St. Bronxlyn 212</Text>
-            <Text style={styles.detailsLabel}>Description</Text>
-            <Text style={styles.detailsData}>
-              Aku ingin menjadi setitik awan kecil di langint bersama menati
-              yaga hah
-            </Text>
+            <NotificationField label="Name" value={notificationData.Name} />
+            <NotificationField
+              label="Desease"
+              value={notificationData.Disease}
+            />
+            <NotificationField
+              label="Location"
+              value={notificationData.Address}
+            />
+            {notificationData.Description &&
+              notificationData.Description.length > 0 && (
+                <NotificationField
+                  label="Description"
+                  value={notificationData.Description}
+                />
+              )}
           </View>
           <View style={styles.doctorDetails}>
             <Text style={styles.detailsTitle}>Doctor</Text>
             <View style={styles.doctorInfo}>
               <Image
                 source={{
-                  uri: "https://i.ibb.co/XLSV9C1/file-20191203-66986-im7o5.jpg",
+                  uri: `data:image/png;base64,${doctorData.Photo}`,
                 }}
                 style={styles.doctorImage}
               />
               <View style={styles.listInfo}>
-                <Text style={styles.name}>Dudung Sokhmati</Text>
-                <Text style={styles.speciality}>Eye Specialist</Text>
-                <View style={styles.ratingWrapper}>
-                  <AntDesign
-                    style={{ marginRight: 5 }}
-                    name="star"
-                    size={PixelRatio.get() <= 1.5 ? 18 : 20}
-                    color="#FED500"
-                  />
-                  <AntDesign
-                    style={{ marginRight: 5 }}
-                    name="star"
-                    size={PixelRatio.get() <= 1.5 ? 18 : 20}
-                    color="#FED500"
-                  />
-                  <AntDesign
-                    style={{ marginRight: 5 }}
-                    name="star"
-                    size={PixelRatio.get() <= 1.5 ? 18 : 20}
-                    color="#FED500"
-                  />
-                  <AntDesign
-                    style={{ marginRight: 5 }}
-                    name="star"
-                    size={PixelRatio.get() <= 1.5 ? 18 : 20}
-                    color="#FED500"
-                  />
-                  <AntDesign
-                    style={{ marginRight: 5 }}
-                    name="star"
-                    size={PixelRatio.get() <= 1.5 ? 18 : 20}
-                    color="#FED500"
-                  />
-
-                  <Text style={styles.rating}>4.9</Text>
-                </View>
+                <Text style={styles.name}>{doctorData.FullName}</Text>
+                <Text style={styles.speciality}>{doctorData.Specs}</Text>
+                <RatingStars stars={doctorData.Stars} />
               </View>
             </View>
           </View>
           <View style={styles.btnWrapper}>
             <TouchableOpacity
               style={styles.confirmBtn}
-              onPress={() => navigation.navigate("Home")}
+              onPress={() => onPress()}
             >
               <Text style={styles.confirmBtnText}>Confirm</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelBtn}
-              onPress={() => navigation.navigate("Home")}
+              onPress={() => onPress()}
             >
               <Text style={styles.cancelBtnText}>Cancel Request</Text>
             </TouchableOpacity>
@@ -181,19 +164,6 @@ const styles = StyleSheet.create({
     color: "#08DA5F",
     fontWeight: "900",
   },
-  detailsLabel: {
-    color: "#37474E",
-    fontSize: PixelRatio.get() <= 1.5 ? 16 : 18,
-    fontWeight: "900",
-    paddingTop: "7%",
-  },
-  detailsData: {
-    color: "#92A6B0",
-    lineHeight: 22,
-    paddingTop: "2%",
-    fontSize: PixelRatio.get() <= 1.5 ? 16 : 18,
-    textAlign: "justify",
-  },
   doctorInfo: {
     flexDirection: "row",
     borderWidth: 1,
@@ -221,16 +191,6 @@ const styles = StyleSheet.create({
     color: "#08DA5F",
     fontStyle: "italic",
     fontSize: PixelRatio.get() <= 1.5 ? 14 : 16,
-  },
-  ratingWrapper: {
-    flexDirection: "row",
-    paddingTop: 5,
-    alignItems: "center",
-  },
-  rating: {
-    fontSize: PixelRatio.get() <= 1.5 ? 14 : 16,
-    color: "#92A6B0",
-    paddingLeft: 5,
   },
   btnWrapper: {
     marginTop: "12%",

@@ -1,17 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
   StyleSheet,
   Text,
-  TextInput,
   StatusBar,
   ScrollView,
   PixelRatio,
 } from "react-native";
 import Navbar from "../navbar";
+import FormField from "../helpers/formField";
+import * as SecureStore from "expo-secure-store";
 
 export default function Homepage({ navigation }) {
+  const [formFields, setFormFields] = useState({
+    name: "",
+    desease: "",
+    address: "",
+    description: "",
+  });
+  const setField = (field, value) => {
+    setFormFields({ ...formFields, [field]: value });
+  };
+  const onRequest = async () => {
+    SecureStore.setItemAsync("formFields", JSON.stringify(formFields));
+    navigation.navigate("Doctors");
+  };
   return (
     <View style={styles.homepageWrapper}>
       <StatusBar barStyle="light-content" backgroundColor="#08DA5F" />
@@ -23,44 +37,43 @@ export default function Homepage({ navigation }) {
           <Text style={styles.urgentBtnText}>VERY URGENT</Text>
         </TouchableOpacity>
         <View style={styles.form}>
-          <View styles={styles.formField}>
-            <Text style={styles.formLabel}>Name</Text>
-            <TextInput
-              style={styles.input}
-              multiline
-              placeholder="Your Name"
-              placeholderTextColor="#8FA3AC"
-            />
-          </View>
-          <View styles={styles.formField}>
-            <Text style={styles.formLabel}>Desease</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="What is your illness"
-              placeholderTextColor="#8FA3AC"
-            />
-          </View>
-          <View styles={styles.formField}>
-            <Text style={styles.formLabel}>Location</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Where your location"
-              placeholderTextColor="#8FA3AC"
-            />
-          </View>
-          <View styles={styles.formField}>
-            <Text style={styles.formLabel}>Description ( Optional )</Text>
-            <TextInput
-              style={styles.textBox}
-              multiline={true}
-              placeholder="Describe here"
-              placeholderTextColor="#8FA3AC"
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.formBtn}
-            onPress={() => navigation.navigate("Doctors")}
-          >
+          <FormField
+            label="Name"
+            placeholder="Your Name"
+            setField={setField}
+            value={formFields.name}
+            field="name"
+            secureEntry={false}
+            styleInput={true}
+          />
+          <FormField
+            label="Desease"
+            placeholder="What is your illness"
+            setField={setField}
+            value={formFields.desease}
+            field="desease"
+            secureEntry={false}
+            styleInput={true}
+          />
+          <FormField
+            label="Location"
+            placeholder="Where is your location"
+            setField={setField}
+            value={formFields.address}
+            field="address"
+            secureEntry={false}
+            styleInput={true}
+          />
+          <FormField
+            label="Description ( Optional )"
+            placeholder="Describe here"
+            setField={setField}
+            value={formFields.description}
+            field="description"
+            secureEntry={false}
+            styleInput={false}
+          />
+          <TouchableOpacity style={styles.formBtn} onPress={() => onRequest()}>
             <Text style={styles.formBtnText}>Request</Text>
           </TouchableOpacity>
         </View>
@@ -104,31 +117,11 @@ const styles = StyleSheet.create({
   form: {
     marginLeft: 25,
     marginRight: 25,
-    marginTop: "5%",
-    marginTop: "4%",
+    marginTop: "7%",
   },
   formLabel: {
     color: "#37474E",
     fontSize: PixelRatio.get() <= 1.5 ? 16 : 18,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#CFD8DD",
-    borderRadius: 5,
-    height: 50,
-    padding: 10,
-    marginTop: "5%",
-    marginBottom: "5%",
-  },
-  textBox: {
-    borderWidth: 1,
-    borderColor: "#CFD8DD",
-    borderRadius: 5,
-    height: 100,
-    padding: 10,
-    marginTop: "5%",
-    marginBottom: "5%",
-    textAlignVertical: "top",
   },
   formBtn: {
     backgroundColor: "#07DA5F",

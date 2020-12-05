@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ImageSelector from "./imagePicker";
-import FormField from "./formField";
+import FormField from "../../helpers/formField";
 import axios from "axios";
 import qs from "qs";
 
@@ -76,6 +76,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.fullName}
             field="fullName"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Username"
@@ -84,6 +85,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.userName}
             field="userName"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Birthday"
@@ -92,6 +94,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.birthday}
             field="birthday"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Email"
@@ -100,6 +103,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.email}
             field="email"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Phone number"
@@ -108,6 +112,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.phone}
             field="phone"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Location/Address"
@@ -116,6 +121,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.address}
             field="address"
             secureEntry={false}
+            styleInput={true}
           />
           <FormField
             label="Password"
@@ -124,6 +130,7 @@ export default function SignUp({ navigation, navigation: { goBack } }) {
             value={formFields.password}
             field="password"
             secureEntry={true}
+            styleInput={true}
           />
           <TouchableOpacity
             style={styles.signUpBtn}

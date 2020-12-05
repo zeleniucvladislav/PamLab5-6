@@ -17,6 +17,7 @@ import DoctorList from "./doctorList";
 export default function Doctors({ navigation, navigation: { goBack } }) {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchDoctors();
   }, []);

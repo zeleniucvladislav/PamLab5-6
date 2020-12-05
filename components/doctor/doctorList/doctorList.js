@@ -17,7 +17,9 @@ export default function DoctorList(props) {
       key={index}
       style={styles.listBox}
       onPress={() =>
-        props.navigation.navigate("DoctorDetail", { id: item.DocId })
+        props.navigation.navigate("DoctorDetail", {
+          id: item.DocId,
+        })
       }
     >
       <Image
