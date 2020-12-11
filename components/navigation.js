@@ -9,6 +9,8 @@ import Doctors from "./doctor/doctorList/doctors";
 import DoctorDetail from "./doctor/doctorDetail/doctorDetail";
 import Notification from "./notification/notification";
 import Profile from "./profile/profile";
+import requeestedDoctor from "./doctor/requestDoctor/requestedDoctor";
+import RequestedDoctor from "./doctor/requestDoctor/requestedDoctor";
 
 const Tab = createBottomTabNavigator();
 
@@ -68,6 +70,13 @@ export default function Navigation(props) {
         <Tab.Screen
           name="DoctorDetail"
           component={DoctorDetail}
+          options={({ route }) => ({
+            tabBarVisible: false,
+          })}
+        />
+        <Tab.Screen
+          name="RequestedDoctor"
+          component={RequestedDoctor}
           options={({ route }) => ({
             tabBarVisible: false,
           })}

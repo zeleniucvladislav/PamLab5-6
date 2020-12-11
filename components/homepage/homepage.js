@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   TouchableOpacity,
@@ -8,14 +8,16 @@ import {
   ScrollView,
   PixelRatio,
 } from "react-native";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import qs from "qs";
 import Navbar from "../navbar";
 import FormField from "../helpers/formField";
-import * as SecureStore from "expo-secure-store";
 
 export default function Homepage({ navigation }) {
   const [formFields, setFormFields] = useState({
     name: "",
-    desease: "",
+    disease: "",
     address: "",
     description: "",
   });
@@ -23,8 +25,31 @@ export default function Homepage({ navigation }) {
     setFormFields({ ...formFields, [field]: value });
   };
   const onRequest = async () => {
-    SecureStore.setItemAsync("formFields", JSON.stringify(formFields));
-    navigation.navigate("Doctors");
+    const token = await SecureStore.getItemAsync("token");
+    axios({
+      method: "post",
+      url: "https://pam.cybersnets.com/api/Doctor/AddConsultation",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        token: JSON.parse(token),
+      },
+      data: qs.stringify({
+        Name: formFields.name,
+        Disease: formFields.disease,
+        Address: formFields.address,
+        Description: formFields.description,
+      }),
+    })
+      .then((response) => {
+        SecureStore.setItemAsync("formFields", JSON.stringify(response.data));
+        navigation.navigate("RequestedDoctor", { id: response.data.DocId });
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.log(error.response.data);
+        }
+        console.log(error);
+      });
   };
   return (
     <View style={styles.homepageWrapper}>
@@ -47,11 +72,11 @@ export default function Homepage({ navigation }) {
             styleInput={true}
           />
           <FormField
-            label="Desease"
+            label="Disease"
             placeholder="What is your illness"
             setField={setField}
-            value={formFields.desease}
-            field="desease"
+            value={formFields.disease}
+            field="disease"
             secureEntry={false}
             styleInput={true}
           />

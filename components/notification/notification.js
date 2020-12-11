@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
@@ -8,12 +8,14 @@ import {
   StatusBar,
   Image,
   PixelRatio,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Navbar from "../navbar";
 import NotificationField from "./notificationField";
-import RatingStars from "../helpers/ratingStars";
+
 import * as SecureStore from "expo-secure-store";
+import RatingStars from "../helpers/ratingStars";
 
 const checkmark = require("../../static/images/checkmark.png");
 
@@ -22,7 +24,25 @@ export default function Notification({
   navigation,
   navigation: { goBack },
 }) {
-  const { notificationData, doctorData } = route.params;
+  const [notificationField, setField] = useState({});
+  const [error, setError] = useState(false);
+  const [doctorData, setDoctorData] = useState({});
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setError(false);
+    setLoading(true);
+    const getFormFields = async () => {
+      const formFields = JSON.parse(
+        await SecureStore.getItemAsync("formFields")
+      );
+      formFields !== null ? setField(formFields) : setError(true);
+      route.params !== undefined
+        ? setDoctorData(route.params.doctorData)
+        : setError(true);
+      setLoading(false);
+    };
+    getFormFields();
+  }, [route.params]);
   const onPress = async () => {
     SecureStore.deleteItemAsync("formFields");
     navigation.navigate("Home");
@@ -36,67 +56,92 @@ export default function Notification({
         </TouchableOpacity>
         <Text style={styles.headerText}>Notification</Text>
       </View>
-      <ScrollView>
-        <View style={styles.checkMark}>
-          <Image source={checkmark} style={styles.image} />
+      {loading ? (
+        <View style={styles.loadingWrapper}>
+          <ActivityIndicator size="large" color="#08DA5F" />
         </View>
-        <Text style={styles.mainText}>Your Request Has Been Approved</Text>
-        <Text style={styles.secondaryText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, t. Ut enim ad
-          minim venia m. quis nostrud exercitation ullamco
-        </Text>
-        <View style={styles.content}>
-          <View style={styles.requestDetails}>
-            <Text style={styles.detailsTitle}>Request Details</Text>
-            <NotificationField label="Name" value={notificationData.Name} />
-            <NotificationField
-              label="Desease"
-              value={notificationData.Disease}
-            />
-            <NotificationField
-              label="Location"
-              value={notificationData.Address}
-            />
-            {notificationData.Description &&
-              notificationData.Description.length > 0 && (
-                <NotificationField
-                  label="Description"
-                  value={notificationData.Description}
-                />
-              )}
-          </View>
-          <View style={styles.doctorDetails}>
-            <Text style={styles.detailsTitle}>Doctor</Text>
-            <View style={styles.doctorInfo}>
-              <Image
-                source={{
-                  uri: `data:image/png;base64,${doctorData.Photo}`,
-                }}
-                style={styles.doctorImage}
-              />
-              <View style={styles.listInfo}>
-                <Text style={styles.name}>{doctorData.FullName}</Text>
-                <Text style={styles.speciality}>{doctorData.Specs}</Text>
-                <RatingStars stars={doctorData.Stars} />
-              </View>
+      ) : (
+        <>
+          {error ? (
+            <View style={styles.errorWrapper}>
+              <Text style={styles.error}>An Error has occured</Text>
+              <TouchableOpacity
+                style={styles.confirmBtn}
+                onPress={() => onPress()}
+              >
+                <Text style={styles.confirmBtnText}>Return</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-          <View style={styles.btnWrapper}>
-            <TouchableOpacity
-              style={styles.confirmBtn}
-              onPress={() => onPress()}
-            >
-              <Text style={styles.confirmBtnText}>Confirm</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelBtn}
-              onPress={() => onPress()}
-            >
-              <Text style={styles.cancelBtnText}>Cancel Request</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+          ) : (
+            <ScrollView>
+              <View style={styles.checkMark}>
+                <Image source={checkmark} style={styles.image} />
+              </View>
+              <Text style={styles.mainText}>
+                Your Request Has Been Approved
+              </Text>
+              <Text style={styles.secondaryText}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, t. Ut
+                enim ad minim venia m. quis nostrud exercitation ullamco
+              </Text>
+              <View style={styles.content}>
+                <View style={styles.requestDetails}>
+                  <Text style={styles.detailsTitle}>Request Details</Text>
+                  <NotificationField
+                    label="Name"
+                    value={notificationField.Name}
+                  />
+                  <NotificationField
+                    label="Desease"
+                    value={notificationField.Disease}
+                  />
+                  <NotificationField
+                    label="Location"
+                    value={notificationField.Address}
+                  />
+                  {notificationField.Description &&
+                    notificationField.Description.length > 0 && (
+                      <NotificationField
+                        label="Description"
+                        value={notificationField.Description}
+                      />
+                    )}
+                </View>
+                <View style={styles.doctorDetails}>
+                  <Text style={styles.detailsTitle}>Doctor</Text>
+                  <View style={styles.doctorInfo}>
+                    <Image
+                      source={{
+                        uri: `data:image/png;base64,${doctorData.Photo}`,
+                      }}
+                      style={styles.doctorImage}
+                    />
+                    <View style={styles.listInfo}>
+                      <Text style={styles.name}>{doctorData.FullName}</Text>
+                      <Text style={styles.speciality}>{doctorData.Specs}</Text>
+                      <RatingStars stars={doctorData.Stars} />
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.btnWrapper}>
+                  <TouchableOpacity
+                    style={styles.confirmBtn}
+                    onPress={() => onPress()}
+                  >
+                    <Text style={styles.confirmBtnText}>Confirm</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelBtn}
+                    onPress={() => onPress()}
+                  >
+                    <Text style={styles.cancelBtnText}>Cancel Request</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+          )}
+        </>
+      )}
       <Navbar />
     </View>
   );
@@ -219,5 +264,20 @@ const styles = StyleSheet.create({
   cancelBtnText: {
     color: "#92A6B0",
     fontSize: PixelRatio.get() <= 1.5 ? 16 : 18,
+  },
+  errorWrapper: {
+    flex: 1,
+    paddingLeft: "6%",
+    paddingRight: "6%",
+    justifyContent: "center",
+  },
+  error: {
+    alignSelf: "center",
+    marginBottom: "5%",
+    fontSize: PixelRatio.get() <= 1.5 ? 18 : 20,
+  },
+  loadingWrapper: {
+    flex: 1,
+    justifyContent: "center",
   },
 });

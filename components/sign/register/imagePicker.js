@@ -14,13 +14,15 @@ export default function ImageSelector(props) {
     }
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       base64: true,
+      quality: 0.1,
+      aspect: [4, 3],
     });
 
     if (pickerResult.cancelled === true) {
       return;
     }
 
-    props.setImage(pickerResult.base64.slice(0, 1000));
+    props.setImage(pickerResult.base64);
     setSelectedImage({ localUri: pickerResult.uri });
   };
   const image =

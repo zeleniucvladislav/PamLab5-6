@@ -17,7 +17,6 @@ import MapView, { Marker } from "react-native-maps";
 import axios from "axios";
 import * as Location from "expo-location";
 import * as SecureStore from "expo-secure-store";
-import qs from "qs";
 import RatingStars from "../../helpers/ratingStars";
 
 export default function DoctorDetail({
@@ -36,8 +35,8 @@ export default function DoctorDetail({
   const { id } = route.params;
 
   useEffect(() => {
-    fetchDoctor();
     setLoading(true);
+    fetchDoctor();
   }, [id]);
   const fetchDoctor = async () => {
     const token = await SecureStore.getItemAsync("token");
@@ -57,38 +56,7 @@ export default function DoctorDetail({
         console.log(error);
       });
   };
-  const onRequest = async () => {
-    const formFields = await SecureStore.getItemAsync("formFields");
-    const token = await SecureStore.getItemAsync("token");
-    const parsedFields = JSON.parse(formFields);
-    axios({
-      method: "post",
-      url: "https://pam.cybersnets.com/api/Doctor/AddConsultation",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        token: JSON.parse(token),
-      },
-      data: qs.stringify({
-        Name: parsedFields.name,
-        Disease: parsedFields.desease,
-        Address: parsedFields.address,
-        Description: parsedFields.description,
-        DocId: doctor.DocId,
-      }),
-    })
-      .then((response) => {
-        navigation.navigate("Notification", {
-          notificationData: response.data,
-          doctorData: doctor,
-        });
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.log(error.response.data);
-        }
-        console.log(error);
-      });
-  };
+
   const getLocation = async (address) => {
     let { status } = await Location.requestPermissionsAsync();
     if (status !== "granted") {
@@ -159,7 +127,14 @@ export default function DoctorDetail({
                 }}
               />
             </MapView>
-            <TouchableOpacity style={styles.btn} onPress={() => onRequest()}>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() =>
+                navigation.navigate("Notification", {
+                  doctorData: doctor,
+                })
+              }
+            >
               <Text style={styles.btnText}>Request</Text>
             </TouchableOpacity>
           </>
